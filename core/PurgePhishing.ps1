@@ -69,7 +69,7 @@ $contentQuery = "(from:`"$expediteur`") AND (received>=$dateISO)"
 # =========================
 # Nom automatique + initialisation log
 # =========================
-$timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm"
+$timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
 $searchName = "Purge_$timestamp"
 
 $logDir = Join-Path $PSScriptRoot "..\logs"
@@ -81,7 +81,7 @@ $logFile = Join-Path $logDir "Purge_$timestamp.log"
 function Write-Log {
     param([string]$message)
     $line = "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] $message"
-    Add-Content -Path $logFile -Value $line
+    Add-Content -Path $logFile -Value $line -Encoding UTF8
 }
 
 Write-Host "Nom de la recherche : $searchName" -ForegroundColor Green
