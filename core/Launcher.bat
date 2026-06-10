@@ -1,0 +1,1 @@
+powerShell.exe -ExecutionPolicy Bypass -File "PurgePhishing.ps1"
