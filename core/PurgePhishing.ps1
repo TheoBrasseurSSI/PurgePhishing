@@ -41,8 +41,11 @@ try {
     Connect-IPPSSession -EnableSearchOnlySession -ErrorAction Stop
 }
 catch {
-    Write-Host "Erreur : impossible de se connecter au centre de conformité." -ForegroundColor Red
-    return
+    Write-Host "Erreur : impossible de se connecter au centre de conformite. Verifiez vos droits." -ForegroundColor Red
+    Write-Host ""
+    Write-Host "Appuyez sur ESPACE pour quitter"
+    do { $key = [System.Console]::ReadKey($true) } until ($key.Key -eq "Spacebar")
+    exit
 }
 
 # =========================
@@ -72,7 +75,8 @@ $contentQuery = "(from:`"$expediteur`") AND (received>=$dateISO)"
 $timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
 $searchName = "Purge_$timestamp"
 
-$logDir = Join-Path $PSScriptRoot "..\logs"
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$logDir = Join-Path $scriptDir "..\logs"
 if (-not (Test-Path $logDir)) {
     New-Item -ItemType Directory -Path $logDir | Out-Null
 }
@@ -81,7 +85,7 @@ $logFile = Join-Path $logDir "Purge_$timestamp.log"
 function Write-Log {
     param([string]$message)
     $line = "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] $message"
-    Add-Content -Path $logFile -Value $line -Encoding UTF8
+    Add-Content -Path $script:logFile -Value $line -Encoding UTF8 -ErrorAction SilentlyContinue
 }
 
 Write-Host "Nom de la recherche : $searchName" -ForegroundColor Green
@@ -133,7 +137,10 @@ if ($results -eq 0) {
     Write-Host "Aucun email trouve avec ces criteres. Arret de la procedure de purge." -ForegroundColor Red
     Write-Log "Aucun email trouve - purge annulee"
     Remove-ComplianceSearch -Identity $searchName -Confirm:$false
-    return
+    Write-Host ""
+    Write-Host "Appuyez sur ESPACE pour quitter"
+    do { $key = [System.Console]::ReadKey($true) } until ($key.Key -eq "Spacebar")
+    exit
 }
 
 Write-Host "Nombre d'elements trouves : $results" -ForegroundColor Green
